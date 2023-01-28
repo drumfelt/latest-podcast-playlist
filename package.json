@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/drumfelt/latest-podcast-playlist#readme",
   "dependencies": {
+    "config": "^3.3.9",
     "sqlite3": "^5.1.4"
   }
 }
