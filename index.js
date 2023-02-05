@@ -5,16 +5,41 @@ const client_id = config.get('clientId');
 const client_secret = config.get('clientSecret');
 const request = require('request');
 const queryString = require('querystring');
+var _ = require('lodash');
 
 let db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
-        console.error(new Date(), err.message);
+        console.error(Date.now(), err.message);
     }
+
     console.log('Connected to the database.');
     getToken().then((tokens) => {
-        getMe(tokens).then((sup) => console.log(sup));
+        getMe(tokens).then(
+            (meResults) => {
+                console.log('successful getMe'); 
+                return Promise.resolve(meResults);
+            },
+            (failedTokens) => {
+                console.log('failed getMe');
+                return new Promise((resolve, reject) => {
+                    refreshToken(failedTokens).then((tokens) => {
+                        getMe(tokens).then((meResults) => resolve(meResults));
+                    });
+                });
+            }
+        ).then((meResults) => createListOfShowIds(meResults));
     });
 });
+
+function createListOfShowIds(shows) {
+    console.log('createListOfShowIds');
+    if (shows && shows.items && !_.isEmpty(shows.items)) {
+        const showIds = [];
+        _.forEach(shows.items, (item) => {
+            console.log(item.show.id);
+        });
+    }
+}
 
 function getToken() {
     console.log('getToken');
@@ -30,7 +55,7 @@ function getToken() {
 }
 
 const getMe = (tokens) => {
-    const outerPromise = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         console.log('getMe');
         const options = {
             url: 'https://api.spotify.com/v1/me/shows',
@@ -44,27 +69,15 @@ const getMe = (tokens) => {
         request.get(options, (error, response, body) => {
 
             if (body.error && body.error.status === 401) {
-                refreshToken(tokens.refresh).then((newTokens) => {
-                    // todo recursive call to getMe? Resolve outer promise if successful 
-                    // recursion spooky
-
-                    // getMe(newTokens).then((recurBody) => {
-                    //     console.log('getMe failed');
-                    //     resolve(recurBody);
-                    // });
-                });
+                reject(tokens);
             } else {
-                console.log('getMe success');
-                resolve(body)
+                resolve(body);
             }
-            console.log(body);
         });
     });
-
-    return outerPromise;
 }
 
-const refreshToken = (refresh_token) => {
+const refreshToken = (tokens) => {
     console.log('refreshToken');
     return new Promise((resolve, reject) => {
         const authOptions = {
@@ -72,7 +85,7 @@ const refreshToken = (refresh_token) => {
             headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
             form: {
                 grant_type: 'refresh_token',
-                refresh_token: refresh_token
+                refresh_token: tokens.refresh
             },
             json: true
         };
@@ -80,7 +93,8 @@ const refreshToken = (refresh_token) => {
         request.post(authOptions, function (error, response, body) {
             if (!error && response.statusCode === 200) {
                 db.run('update tokens set access = ?', body.access_token);
-                resolve({ access: body.access_token, refresh: refresh_token });
+                tokens.access = body.access_token;
+                resolve(tokens);
             } else {
                 console.log(error);
             }
