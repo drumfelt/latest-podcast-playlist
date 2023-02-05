@@ -35,7 +35,7 @@ const getMe = (tokens) => {
         const options = {
             url: 'https://api.spotify.com/v1/me/shows',
             headers: {
-                'Authorization': 'Bearer ' + tokens.access + '2',
+                'Authorization': 'Bearer ' + tokens.access,
                 'Content-Type': 'application/json'
             },
             json: true
@@ -47,7 +47,7 @@ const getMe = (tokens) => {
                 refreshToken(tokens.refresh).then((newTokens) => {
                     // todo recursive call to getMe? Resolve outer promise if successful 
                     // recursion spooky
-                    
+
                     // getMe(newTokens).then((recurBody) => {
                     //     console.log('getMe failed');
                     //     resolve(recurBody);
