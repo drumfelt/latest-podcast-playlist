@@ -9,7 +9,7 @@ const _ = require('lodash');
 
 const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
-        console.error(Date.now(), err.message);
+        console.error(err.message);
     }
     console.log('Connected to the database.');
 
@@ -50,7 +50,7 @@ function getToken() {
     return new Promise((resolve, reject) => {
         db.get('select * from tokens', (err, row) => {
             if (err) {
-                console.log(Date.now(), 'error in getToken() : ', err);
+                console.log('error in getToken() : ', err);
             } else {
                 resolve(row);
             }
@@ -100,7 +100,7 @@ function refreshToken(tokens) {
                 tokens.access = body.access_token;
                 resolve(tokens);
             } else {
-                console.log(Date.now(), error);
+                console.log(error);
             }
         });
     });
