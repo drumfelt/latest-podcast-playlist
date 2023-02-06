@@ -11,8 +11,12 @@ let db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         console.error(Date.now(), err.message);
     }
-
     console.log('Connected to the database.');
+
+    startPlaylistCreation();
+});
+
+function startPlaylistCreation() {
     getToken().then((tokens) => {
         getMe(tokens).then(
             (meResults) => {
@@ -29,7 +33,7 @@ let db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
             }
         ).then((meResults) => createListOfShowIds(meResults));
     });
-});
+}
 
 function createListOfShowIds(shows) {
     console.log('createListOfShowIds');
@@ -54,7 +58,7 @@ function getToken() {
     });
 }
 
-const getMe = (tokens) => {
+function getMe(tokens) {
     return new Promise((resolve, reject) => {
         console.log('getMe');
         const options = {
@@ -77,7 +81,7 @@ const getMe = (tokens) => {
     });
 }
 
-const refreshToken = (tokens) => {
+function refreshToken(tokens) {
     console.log('refreshToken');
     return new Promise((resolve, reject) => {
         const authOptions = {
