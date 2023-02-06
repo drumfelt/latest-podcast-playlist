@@ -5,9 +5,9 @@ const client_id = config.get('clientId');
 const client_secret = config.get('clientSecret');
 const request = require('request');
 const queryString = require('querystring');
-var _ = require('lodash');
+const _ = require('lodash');
 
-let db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
+const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         console.error(Date.now(), err.message);
     }
