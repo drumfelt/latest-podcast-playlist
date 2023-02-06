@@ -100,7 +100,7 @@ function refreshToken(tokens) {
                 tokens.access = body.access_token;
                 resolve(tokens);
             } else {
-                console.log(error);
+                console.log(Date.now(), error);
             }
         });
     });
