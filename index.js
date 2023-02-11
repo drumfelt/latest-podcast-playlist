@@ -69,7 +69,6 @@ function checkIfShowIsAudioBook(showId) {
                 'Content-Type': 'application/json'
             },
         };
-        console.log(options);
         request.get(options, (error, response, body) => {
             if (response.statusCode === 200) {
                 reject('This is an audio book.');
@@ -149,7 +148,6 @@ function addItemsToPlaylist(playList, episodes) {
             json: true
         };
         request.post(addToPlaylistOptions, (error, response, body) => {
-            // console.log('add to playlist', addToPlaylistOptions, response.statusCode, JSON.stringify(body));
             console.log(JSON.stringify(body));
         })
     });
