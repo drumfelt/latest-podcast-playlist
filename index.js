@@ -56,6 +56,10 @@ async function getLatestEpisodes(shows) {
         }
     }));
 
+    episodes.sort((a, b) => {
+        return a.items[0].duration_ms - b.items[0].duration_ms;
+    });
+    
     return episodes;
 }
 
