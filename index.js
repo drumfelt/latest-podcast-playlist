@@ -7,9 +7,10 @@ const request = require('request');
 const queryString = require('querystring');
 const _ = require('lodash');
 
-const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
+const db = new sqlite3.Database('dbPath', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
-        console.error(err.message);
+        console.error('Failed to connect to database. Error: ', err.message);
+        return;
     }
     console.log('Connected to the database.');
 
