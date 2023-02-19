@@ -19,6 +19,7 @@
   "dependencies": {
     "config": "^3.3.9",
     "lodash": "^4.17.21",
+    "moment": "^2.29.4",
     "querystring": "^0.2.1",
     "request": "^2.88.2",
     "sqlite3": "^5.1.4"

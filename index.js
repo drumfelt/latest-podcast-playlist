@@ -6,6 +6,7 @@ const client_secret = config.get('clientSecret');
 const request = require('request');
 const queryString = require('querystring');
 const _ = require('lodash');
+const moment = require('moment');
 
 const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
@@ -14,7 +15,29 @@ const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     }
     console.log('Connected to the database.');
 
-    startPlaylistCreation().then(() => {
+    startPlaylistCreation().then((playlist) => {
+        console.log('playlist id', playlist.id);
+        db.run('insert into created_playlists(playlist_id, date_added) values(?, ?);',
+            playlist.id, moment().format());
+
+        const createdPlaylists = [];
+        db.each('select playlist_id, date_added from created_playlists', (err, row) => {
+            createdPlaylists.push(row);
+        });
+
+        const opts = {
+            url: `https://api.spotify.com/v1/playlists/${createdPlaylists[0].playlist_id}/followers`,
+            json: true,
+            headers: {
+                'Authorization': 'Bearer ' + authTokens.access,
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        request.delete(opts, (error, response, body) => {
+            console.log(response.statusCode, body);
+        });
+
         db.close(() => {
             console.log('Database connection closed.');
         });
@@ -37,7 +60,7 @@ async function startPlaylistCreation() {
     }
 
     const shows = await getFollowedPodcasts();
-    await createPlaylist(shows);
+    return await createPlaylist(shows);
 }
 
 async function createPlaylist(shows) {
@@ -45,6 +68,7 @@ async function createPlaylist(shows) {
         const playlist = await createEmptyPlaylist();
         const episodes = await getLatestEpisodes(shows);
         await addItemsToPlaylist(playlist, episodes);
+        return playlist;
     } else {
         console.log('No shows.');
     }

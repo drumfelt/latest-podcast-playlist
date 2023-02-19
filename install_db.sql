@@ -1,4 +1,3 @@
 create table tokens(access, refresh);
 
-insert into tokens(access, refresh)
-values ('', ''); 
+create table created_playlists(playlist_id, date_added);
